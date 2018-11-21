@@ -11,4 +11,4 @@ image:
 ingress:
   enabled: true
   hosts:
-    - mycluster.icp
+    - jpetstore.mycluster.icp

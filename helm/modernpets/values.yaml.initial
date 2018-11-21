@@ -5,10 +5,10 @@
 replicaCount: 2
 
 image:
-  repository: mycluster.icp:8500/default
+  repository: registry.ng.bluemix.net/<NAMESPACE> # Ex: registry.ng.bluemix.net/mynamespace
   pullPolicy: Always
 
 ingress:
   enabled: true
   hosts:
-    - jpetstore.mycluster.icp
+    - jpetstore.<Ingress Subdomain> # Ex: jpetstore.myclustername.us-south.containers.mybluemix.net
