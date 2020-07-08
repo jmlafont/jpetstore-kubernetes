@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: jpetstoreweb
-        image: <REGISTRY NAMESPACE>/jpetstoreweb
+        image: jmlafont/jpetstoreweb
         env:
           - name: VERSION
             value: "1"
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: jpetstoredb
-        image: <REGISTRY NAMESPACE>/jpetstoredb
+        image: jmlafont/jpetstoredb
         ports:
         - containerPort: 3306
         env:
@@ -82,7 +82,7 @@ metadata:
   name: jpetstore-ingress
 spec:
   rules:
-  - host: jpetstore.<CLUSTER DOMAIN>
+  - host: jpetstore.ocp2.iicparis.fr.ibm.com
     http:
       paths:
       - path: /
