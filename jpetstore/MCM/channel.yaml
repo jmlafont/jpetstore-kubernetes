@@ -1,0 +1,11 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: jpetstore-devchan
+  namespace: jpetstore-definition
+  labels:
+    app: jpetstore
+spec:
+  type: Namespace
+  pathname: jpetstrore-definition
+

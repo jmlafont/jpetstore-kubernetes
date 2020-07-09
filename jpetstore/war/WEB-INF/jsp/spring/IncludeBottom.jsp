@@ -1,5 +1,5 @@
 <p>&nbsp;</p>
 
 <p align="center">
-	(Currently running on IBM Cloud)
+	(Currently running on OCP )
 </p>

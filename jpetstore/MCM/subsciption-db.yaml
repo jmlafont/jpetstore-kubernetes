@@ -1,0 +1,27 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: jpetstore-db
+  namespace: jpetstore-project
+  labels:
+    app: jpetstore
+    release: jpetstore-devchan
+spec:
+  channel: jpetstore-definition/jpetstore-devchan
+  name: ""
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        package: jpetstore
+        component: db
+  placement:
+    placementRef:
+      name: jpetstore-placement-db
+      kind: PlacementRule
+      group: app.ibm.com
+  overrides:
+  - clusterName: "/"
+    clusterOverrides:
+    - path: "metadata.namespace"
+      value: jpetstore-mcm
+

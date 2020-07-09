@@ -1,0 +1,185 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: jpetstore-deployment
+  namespace: jpetstore-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: web
+    package: jpetstore
+spec:
+  template:
+    kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: jpetstore-deployment
+      labels:
+        app: jpetstore
+    spec:
+      selector:
+        matchLabels:
+          app: jpetstore
+          release: jpetstore-devchan
+          tier: frontend
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: jpetstore
+            release: jpetstore-devchan
+            tier: frontend
+        spec:
+          containers:
+            - name: frontend
+              image: "jmlafont/jpetstoreweb:latest"
+              imagePullPolicy: Always
+          env:
+            - name: VERSION
+              value: "1"
+          ports:
+          - containerPort: 9080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: jpetstoredb-deployment
+  namespace: jpetstore-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: db
+    package: jpetstore
+spec:
+  template:
+    kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: jpetstoredb-deployment
+      labels:
+        app: jpetstore
+    spec:
+      selector:
+        matchLabels:
+          app: jpetstore
+          release: jpetstore-devchan
+          tier: db
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: jpetstore
+            release: jpetstore-devchan
+            tier: db
+        spec:
+          containers:
+          - name: jpetstoredb
+            image: jmlafont/jpetstoredb
+            ports:
+            - containerPort: 3306
+            env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: "foobar"
+              - name: MYSQL_DATABASE
+                value: "jpetstore"
+              - name: MYSQL_USER
+                value: "jpetstore"
+              - name: MYSQL_PASSWORD
+                value: "foobar"
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: jpetstore-service
+  namespace: jpetstore-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: web
+    package: jpetstore
+spec:
+  template:
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: jpetstore-service
+      labels:
+        app: jpetstore
+    spec:
+      ports:
+        - port: 80
+          targetPort: 9080
+      selector:
+        app: jpetstore
+        release: jpetstore-devchan
+        tier: frontend
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: jpetstore-dbservice
+  namespace: jpetstore-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: db
+    package: jpetstore
+spec:
+  template:
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: db
+      labels:
+        app: jpetstore
+    spec:
+      selector:
+        app: jpetstore
+        release: jpetstore-devchan
+        tier: db
+      ports:
+      - port: 3306
+        targetPort: 3306
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: jpetstore-route
+  namespace: jpetstore-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: web
+    package: jpetstore
+spec:
+  template:
+    apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      labels:
+        app: jpetstore-route
+      name: jpetstore
+    spec:
+      host: jpetstore
+      port:
+        targetPort: 9080
+      subdomain: ""
+      to:
+        kind: Service
+        name: jpetstore-service
+        weight: 100
+      wildcardPolicy: None 
+
