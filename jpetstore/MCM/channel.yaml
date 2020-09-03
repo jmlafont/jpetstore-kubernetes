@@ -7,5 +7,5 @@ metadata:
     app: jpetstore
 spec:
   type: Namespace
-  pathname: jpetstrore-definition
+  pathname: jpetstore-definition
 
