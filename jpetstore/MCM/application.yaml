@@ -6,6 +6,9 @@ metadata:
   labels:
     app: jpetstore
 spec:
+  selector:
+    matchLabels:
+      app: jpetstore
   componentKinds:
   - group: app.ibm.com
     kind: Subscription
