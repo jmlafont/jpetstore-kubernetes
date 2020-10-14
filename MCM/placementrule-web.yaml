@@ -1,8 +1,8 @@
 apiVersion: app.ibm.com/v1alpha1
 kind: PlacementRule
 metadata:
-  name: jpetstore-placement
-  namespace: jpetstore-project
+  name: jpetstore-placement-web
+  namespace: jpet-project
   labels:
     app: jpetstore
     release: jpetstore-devchan
@@ -10,4 +10,4 @@ spec:
   clusterReplicas: 1
   clusterLabels:
     matchLabels:
-      environment: Dev
+      jpet_env: DEV
