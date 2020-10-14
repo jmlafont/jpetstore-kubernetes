@@ -49,23 +49,23 @@ application.app.k8s.io/jpetstore created
 
 Ces actions créent de CR sur le hub:
 
-![image-20201014135329367](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014135329367.png)
+![image-20201014135329367](image-20201014135329367.png)
 
 ​	
 
-![image-20201014135755056](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014135755056.png)
+![image-20201014135755056](image-20201014135755056.png)
 
 
 
 L'appli devient visible depuis MCM
 
-![image-20201014135913599](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014135913599.png)
+![image-20201014135913599](image-20201014135913599.png)
 
 
 
 Puis, une fois le cluster labellé conformement aux placement rules et le namespace destination créé sur la cible, l'application et automatiquement déployée:
 
-![image-20201014161250064](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014161250064.png)
+![image-20201014161250064](image-20201014161250064.png)
 
 
 
@@ -73,17 +73,17 @@ Pour tester:
 
 - recuperer le port assigné au service,
 
-![image-20201014192204143](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014192204143.png)
+![image-20201014192204143](image-20201014192204143.png)
 
 - récupérer l'adresse externe d'un noeud du cluster cible
 
-![image-20201014192455170](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014192455170.png)
+![image-20201014192455170](image-20201014192455170.png)
 
-![img](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\SNAGHTML223f5b5.PNG)
+![img](SNAGHTML223f5b5.PNG)
 
-![img](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\SNAGHTML224af9f.PNG)
+![img](SNAGHTML224af9f.PNG)
 
 - construire l'URL 
 
-![image-20201014161427643](C:\Home\GitRepositories\jpetstore-kubernetes\MCM\image-20201014161427643.png)
+![image-20201014161427643](image-20201014161427643.png)
 
