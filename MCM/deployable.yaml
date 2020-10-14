@@ -2,7 +2,7 @@ apiVersion: app.ibm.com/v1alpha1
 kind: Deployable
 metadata:
   name: jpetstore-deployment
-  namespace: jpetstore-definition
+  namespace: jpet-definition
   annotations:
     app.ibm.com/is-local-deployable: "false"
   labels:
@@ -52,7 +52,7 @@ apiVersion: app.ibm.com/v1alpha1
 kind: Deployable
 metadata:
   name: jpetstoredb-deployment
-  namespace: jpetstore-definition
+  namespace: jpet-definition
   annotations:
     app.ibm.com/is-local-deployable: "false"
   labels:
@@ -100,8 +100,8 @@ spec:
 apiVersion: app.ibm.com/v1alpha1
 kind: Deployable
 metadata:
-  name: jpetstore-service
-  namespace: jpetstore-definition
+  name: jpetstore-webservice
+  namespace: jpet-definition
   annotations:
     app.ibm.com/is-local-deployable: "false"
   labels:
@@ -113,7 +113,7 @@ spec:
     kind: Service
     apiVersion: v1
     metadata:
-      name: jpetstore-service
+      name: jpetstore-webservice
       labels:
         app: jpetstore
     spec:
@@ -128,8 +128,37 @@ spec:
 apiVersion: app.ibm.com/v1alpha1
 kind: Deployable
 metadata:
+  name: jpetstore-webservice-np
+  namespace: jpet-definition
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: jpetstore
+    component: web
+    package: jpetstore
+spec:
+  template:
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: jpetstore-webservice-np
+      labels:
+        app: jpetstore
+    spec:
+      ports:
+        - port: 80
+          targetPort: 9080
+      selector:
+        app: jpetstore
+        release: jpetstore-devchan
+        tier: frontend
+      type: NodePort
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
   name: jpetstore-dbservice
-  namespace: jpetstore-definition
+  namespace: jpet-definition
   annotations:
     app.ibm.com/is-local-deployable: "false"
   labels:
@@ -157,7 +186,7 @@ apiVersion: app.ibm.com/v1alpha1
 kind: Deployable
 metadata:
   name: jpetstore-route
-  namespace: jpetstore-definition
+  namespace: jpet-definition
   annotations:
     app.ibm.com/is-local-deployable: "false"
   labels:
@@ -170,16 +199,15 @@ spec:
     kind: Route
     metadata:
       labels:
-        app: jpetstore-route
+        app: jpetstore
       name: jpetstore
     spec:
-      host: jpetstore
       port:
         targetPort: 9080
       subdomain: ""
       to:
         kind: Service
-        name: jpetstore-service
+        name: jpetstore-webservice
         weight: 100
       wildcardPolicy: None 
 
