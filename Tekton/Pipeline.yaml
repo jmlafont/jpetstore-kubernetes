@@ -21,7 +21,7 @@ spec:
   - name: subdirectory
     type: string
     description: name of the subdirectory from repository
-    default: "xxxxx"
+    default: "jpetstore"
   - name: web-repository
     type: string
     description: name of the repository
@@ -56,7 +56,7 @@ spec:
       workspace: shared-workspace
     params:
     - name: subdirectory
-      value: "jpetstore"
+      value: $(params.subdirectory)
     runAfter:
     - clone-repository
 
@@ -123,12 +123,12 @@ spec:
       type: string 
   steps:
     - name: deploy
-      image: quay.io/openshift/origin-cli:latest
+      image: docker.io/openjdk:8
       workingDir: /workspace/source/$(params.subdirectory)
       command: ["/bin/bash", "-c"]
       args:
         - |-
-          echo "**** build jpet-web from $(params.subdirectory)****"
+          ./build.sh
    
 ---
 apiVersion: tekton.dev/v1beta1
