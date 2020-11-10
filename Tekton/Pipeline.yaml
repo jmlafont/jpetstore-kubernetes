@@ -1,0 +1,238 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy-jpet
+spec:
+  workspaces:
+  - name: shared-workspace
+  params:
+  - name: web-deployment-name
+    type: string
+    description: name of the deployment to be patched
+    default: "jpetweb.yaml"
+  - name: db-deployment-name
+    type: string
+    description: name of the deployment to be patched
+    default: "jpetdb.yaml"
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+    default: "https://github.com/jmlafont/jpetstore-kubernetes.git"
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"
+  - name: web-repository
+    type: string
+    description: name of the repository
+    default: "xxxxx"
+  - name: db-repository
+    type: string
+    description: name of the repository
+    default: "xxxxx"    
+
+
+  tasks:
+  - name: clone-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+
+- name: build-jpet-web
+    taskRef:
+      name: build-jpet-web
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: subdirectory
+      value: "jpetstore"
+    runAfter:
+    - clone-repository
+
+- name: build-jpet-db
+    taskRef:
+      name: build-jpet-db
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: subdirectory
+      value: "jpetstore/db"
+    runAfter:
+    - build-jpet-web
+
+- name: push-jpet-db
+    taskRef:
+      name: push-jpet-db
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: db-repository
+      value: "jmlafont/jpetstore-db"
+    runAfter:
+    - build-jpet-web    
+
+- name: push-jpet-web
+    taskRef:
+      name: push-jpet-web
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: web-repository
+      value: "jmlafont/jpetstore-app"
+    runAfter:
+    - build-jpet-web 
+    
+  - name: deploy
+    taskRef:
+      name: deploy-jpet
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: deployment-name
+      value: $(params.deployment-name)
+    - name: subdirectory
+      value: "YAML"
+    runAfter:
+    - build-jpet-web
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-jpet-web
+spec:
+  workspaces:
+    - name: source  
+  params:
+    - name: deployment-name
+      type: string 
+    - name: subdirectory
+      type: string 
+  steps:
+    - name: deploy
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source/$(params.subdirectory)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** build jpet-web from $(subdirectory)****"
+   
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-jpet-db
+spec:
+  workspaces:
+    - name: source  
+  params:
+    - name: deployment-name
+      type: string 
+    - name: subdirectory
+      type: string 
+  steps:
+    - name: deploy
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source/$(params.subdirectory)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** build jpet-db from $(params.subdirectory) ****"---
+   
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: push-jpet-web
+spec:
+  workspaces:
+    - name: source  
+  params:
+    - name: deployment-name
+      type: string 
+    - name: web-repository
+      type: string 
+  steps:
+    - name: push-web
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source/$(params.subdirectory)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** push jpet-web to $(params.repository)****"
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: push-jpet-db
+spec:
+  workspaces:
+    - name: source  
+  params:
+    - name: deployment-name
+      type: string 
+    - name: db-repository
+      type: string 
+  steps:
+    - name: push-web
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source/$(params.subdirectory)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** push jpet-db $(params.repository) ****"---
+---
+   
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-jpet
+spec:
+  workspaces:
+    - name: source  
+  params:
+    - name: deployment-name
+      type: string 
+    - name: subdirectory
+      type: string 
+  steps:
+    - name: deploy
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source/$(params.subdirectory)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** Deploy manifest ****"
+#          oc apply -f $(params.deployment-name)
+
+---
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tekton-workspace
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 107374182400m
+  storageClassName: rook-ceph-cephfs-internal
+
