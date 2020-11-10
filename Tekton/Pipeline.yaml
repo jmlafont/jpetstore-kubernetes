@@ -6,14 +6,10 @@ spec:
   workspaces:
   - name: shared-workspace
   params:
-  - name: web-deployment-name
+  - name: deployment-name
     type: string
     description: name of the deployment to be patched
     default: "jpetweb.yaml"
-  - name: db-deployment-name
-    type: string
-    description: name of the deployment to be patched
-    default: "jpetdb.yaml"
   - name: git-url
     type: string
     description: url of the git repo for the code of deployment
@@ -22,6 +18,10 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: "master"
+  - name: subdirectory
+    type: string
+    description: name of the subdirectory from repository
+    default: "xxxxx"
   - name: web-repository
     type: string
     description: name of the repository
@@ -60,7 +60,7 @@ spec:
     runAfter:
     - clone-repository
 
-- name: build-jpet-db
+  - name: build-jpet-db
     taskRef:
       name: build-jpet-db
     workspaces:
@@ -72,7 +72,7 @@ spec:
     runAfter:
     - build-jpet-web
 
-- name: push-jpet-db
+  - name: push-jpet-db
     taskRef:
       name: push-jpet-db
     workspaces:
@@ -82,9 +82,9 @@ spec:
     - name: db-repository
       value: "jmlafont/jpetstore-db"
     runAfter:
-    - build-jpet-web    
+    - build-jpet-db
 
-- name: push-jpet-web
+  - name: push-jpet-web
     taskRef:
       name: push-jpet-web
     workspaces:
@@ -94,7 +94,7 @@ spec:
     - name: web-repository
       value: "jmlafont/jpetstore-app"
     runAfter:
-    - build-jpet-web 
+    - push-jpet-db
     
   - name: deploy
     taskRef:
@@ -108,7 +108,7 @@ spec:
     - name: subdirectory
       value: "YAML"
     runAfter:
-    - build-jpet-web
+    - push-jpet-web
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -119,8 +119,6 @@ spec:
   workspaces:
     - name: source  
   params:
-    - name: deployment-name
-      type: string 
     - name: subdirectory
       type: string 
   steps:
@@ -130,7 +128,7 @@ spec:
       command: ["/bin/bash", "-c"]
       args:
         - |-
-          echo "**** build jpet-web from $(subdirectory)****"
+          echo "**** build jpet-web from $(params.subdirectory)****"
    
 ---
 apiVersion: tekton.dev/v1beta1
@@ -141,8 +139,6 @@ spec:
   workspaces:
     - name: source  
   params:
-    - name: deployment-name
-      type: string 
     - name: subdirectory
       type: string 
   steps:
@@ -163,18 +159,16 @@ spec:
   workspaces:
     - name: source  
   params:
-    - name: deployment-name
-      type: string 
     - name: web-repository
       type: string 
   steps:
     - name: push-web
       image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.subdirectory)
+      workingDir: /workspace/source/$(params.web-repository)
       command: ["/bin/bash", "-c"]
       args:
         - |-
-          echo "**** push jpet-web to $(params.repository)****"
+          echo "**** push jpet-web to $(params.web-repository)****"
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -185,18 +179,16 @@ spec:
   workspaces:
     - name: source  
   params:
-    - name: deployment-name
-      type: string 
     - name: db-repository
       type: string 
   steps:
     - name: push-web
       image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.subdirectory)
+      workingDir: /workspace/source/$(params.db-repository)
       command: ["/bin/bash", "-c"]
       args:
         - |-
-          echo "**** push jpet-db $(params.repository) ****"---
+          echo "**** push jpet-db $(params.db-repository) ****"---
 ---
    
 apiVersion: tekton.dev/v1beta1
