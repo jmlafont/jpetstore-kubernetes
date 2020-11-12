@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: jpetstoredb
-        image: jmlafont/jpetstoredb
+        image: quay.io/jmlafont/jpetstore-db
         ports:
         - containerPort: 3306
         env:
