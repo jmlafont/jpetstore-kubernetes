@@ -4,7 +4,7 @@ metadata:
   name: build-and-deploy-jpet
 spec:
   workspaces:
-    - name: workspace
+    - name: jpet-workspace
   params:
   - name: git-url
     type: string
@@ -14,20 +14,9 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: "master"
-  - name: app-image
-    type: string
-    description: web app image repository
-    default: "quay.io/jmlafont/jpetstore-web"
-   - name: db-image
-    type: string
-    description: db image repository
-    default: "quay.io/jmlafont/jpetstore-db"
-  - name: registry-password
-    description: password to push images 
-  - name: registry-username
-    description: username to push images 
-    default: jmlafont
-    
+  - name: password
+    description: password docker
+
   tasks:
   - name: clone-repository
     taskRef:
@@ -35,7 +24,7 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: workspace
+      workspace: jpet-workspace
     params:
     - name: url
       value: $(params.git-url)
@@ -50,18 +39,18 @@ spec:
       kind: ClusterTask
     workspaces:
       - name: source
-        workspace: workspace
+        workspace: jpet-workspace
     params:
       - name: DOCKERFILE 
         value: './jpetstore/Dockerfile'
       - name: TLSVERIFY
         value: "false"
       - name: IMAGE
-        value: $(params.app-image)
+        value: quay.io/jmlafont/jpetstore-web
       - name: CONTEXT
         value: jpetstore
       - name: PUSH_EXTRA_ARGS
-        value: "--creds $(params.registry-username):$(params.registry-password)"
+        value: "--creds jmlafont:$(params.password)"
     runafter:
       - clone-repository
 
@@ -78,11 +67,11 @@ spec:
       - name: TLSVERIFY
         value: "false"
       - name: IMAGE
-        value: $(params.db-image)
+        value: quay.io/jmlafont/jpetstore-db
       - name: CONTEXT
         value: jpetstore/db
       - name: PUSH_EXTRA_ARGS
-        value: "--creds $(params.registry-username):$(params.registry-password)"
+        value: "--creds jmlafont:$(params.password)"
     runafter:
       - clone-repository
 
@@ -91,11 +80,21 @@ spec:
       name: deploy-jpet
     workspaces:
       - name: source
-        workspace: workspace
+        workspace: jpet-workspace
     runafter:
       - build-jpet-web
 
+---
 
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: jpet-git
+spec:
+  params:
+    - name: url
+      value: 'https://github.com/jmlafont/jpetstore-kubernetes.git'
+  type: git
 
 ---
 
