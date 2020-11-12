@@ -50,7 +50,9 @@ oc apply -f Pipeline.yam
 run the pipeline
 
 ```
-tkn pipeline start build-and-deploy-jpet
+tkn pipeline start build-and-deploy-jpet \
+--workspace name=workspace,volumeClaimTemplateFile=pvc.yaml
+
 ```
 
 add a security context for database
