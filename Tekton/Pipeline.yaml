@@ -54,6 +54,27 @@ spec:
     runafter:
       - clone-repository
 
+  - name: build-jpet-db
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    workspaces:
+      - name: source
+        workspace: jpet-workspace
+    params:
+      - name: DOCKERFILE 
+        value: './jpetstore/db/Dockerfile'
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: quay.io/jmlafont/jpetstore-db
+      - name: CONTEXT
+        value: jpetstore
+      - name: PUSH_EXTRA_ARGS
+        value: "--creds jmlafont:$(params.password)"
+    runafter:
+      - clone-repository
+
   - name: deploy-jpet
     taskRef:
       name: deploy-jpet
