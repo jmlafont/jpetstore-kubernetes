@@ -4,12 +4,8 @@ metadata:
   name: build-and-deploy-jpet
 spec:
   workspaces:
-  - name: shared-workspace
+    - name: jpet-workspace
   params:
-  - name: deployment-name
-    type: string
-    description: name of the deployment to be patched
-    default: "jpetweb.yaml"
   - name: git-url
     type: string
     description: url of the git repo for the code of deployment
@@ -18,19 +14,8 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: "master"
-  - name: subdirectory
-    type: string
-    description: name of the subdirectory from repository
-    default: "jpetstore"
-  - name: web-repository
-    type: string
-    description: name of the repository
-    default: "xxxxx"
-  - name: db-repository
-    type: string
-    description: name of the repository
-    default: "xxxxx"    
-
+  - name: password
+    description: password docker
 
   tasks:
   - name: clone-repository
@@ -39,7 +24,7 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: shared-workspace
+      workspace: jpet-workspace
     params:
     - name: url
       value: $(params.git-url)
@@ -50,147 +35,48 @@ spec:
 
   - name: build-jpet-web
     taskRef:
-      name: build-jpet-web
+      name: buildah
+      kind: ClusterTask
     workspaces:
-    - name: source
-      workspace: shared-workspace
+      - name: source
+        workspace: jpet-workspace
     params:
-    - name: subdirectory
-      value: $(params.subdirectory)
-    runAfter:
-    - clone-repository
+      - name: DOCKERFILE 
+        value: './jpetstore/Dockerfile'
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: quay.io/jmlafont/jpetstore-web
+      - name: CONTEXT
+        value: jpetstore
+      - name: PUSH_EXTRA_ARGS
+        value: "--creds jmlafont:$(params.password)"
+    runafter:
+      - clone-repository
 
-  - name: build-jpet-db
-    taskRef:
-      name: build-jpet-db
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    params:
-    - name: subdirectory
-      value: "jpetstore/db"
-    runAfter:
-    - build-jpet-web
-
-  - name: push-jpet-db
-    taskRef:
-      name: push-jpet-db
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    params:
-    - name: db-repository
-      value: "jmlafont/jpetstore-db"
-    runAfter:
-    - build-jpet-db
-
-  - name: push-jpet-web
-    taskRef:
-      name: push-jpet-web
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    params:
-    - name: web-repository
-      value: "jmlafont/jpetstore-app"
-    runAfter:
-    - push-jpet-db
-    
-  - name: deploy
+  - name: deploy-jpet
     taskRef:
       name: deploy-jpet
     workspaces:
-    - name: source
-      workspace: shared-workspace
-    params:
-    - name: deployment-name
-      value: $(params.deployment-name)
-    - name: subdirectory
-      value: "YAML"
-    runAfter:
-    - push-jpet-web
+      - name: source
+        workspace: jpet-workspace
+    runafter:
+      - build-jpet-web
 
 ---
-apiVersion: tekton.dev/v1beta1
-kind: Task
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
 metadata:
-  name: build-jpet-web
+  name: jpet-git
 spec:
-  workspaces:
-    - name: source  
   params:
-    - name: subdirectory
-      type: string 
-  steps:
-    - name: deploy
-      image: docker.io/openjdk:8
-      workingDir: /workspace/source/$(params.subdirectory)
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          ./build.sh
-   
----
-apiVersion: tekton.dev/v1beta1
-kind: Task
-metadata:
-  name: build-jpet-db
-spec:
-  workspaces:
-    - name: source  
-  params:
-    - name: subdirectory
-      type: string 
-  steps:
-    - name: deploy
-      image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.subdirectory)
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          echo "**** build jpet-db from $(params.subdirectory) ****"---
-   
----
-apiVersion: tekton.dev/v1beta1
-kind: Task
-metadata:
-  name: push-jpet-web
-spec:
-  workspaces:
-    - name: source  
-  params:
-    - name: web-repository
-      type: string 
-  steps:
-    - name: push-web
-      image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.web-repository)
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          echo "**** push jpet-web to $(params.web-repository)****"
+    - name: url
+      value: 'https://github.com/jmlafont/jpetstore-kubernetes.git'
+  type: git
 
 ---
-apiVersion: tekton.dev/v1beta1
-kind: Task
-metadata:
-  name: push-jpet-db
-spec:
-  workspaces:
-    - name: source  
-  params:
-    - name: db-repository
-      type: string 
-  steps:
-    - name: push-web
-      image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.db-repository)
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          echo "**** push jpet-db $(params.db-repository) ****"---
----
-   
+
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
@@ -198,33 +84,26 @@ metadata:
 spec:
   workspaces:
     - name: source  
-  params:
-    - name: deployment-name
-      type: string 
-    - name: subdirectory
-      type: string 
   steps:
     - name: deploy
       image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source/$(params.subdirectory)
+      workingDir: /workspace/source/YAML
       command: ["/bin/bash", "-c"]
       args:
         - |-
           echo "**** Deploy manifest ****"
-#          oc apply -f $(params.deployment-name)
+          oc apply -f jpetstore.yaml
 
 ---
-
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tekton-workspace
+  name: jpet-workspace
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 107374182400m
+      storage: 1Gi
   storageClassName: rook-ceph-cephfs-internal
 
