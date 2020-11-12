@@ -55,7 +55,7 @@ tkn pipeline start build-and-deploy-jpet \
 
 ```
 
-add a security context for database
+add a anyuid security context to teh service account for the db to be able to start
 
 ```
 oc adm policy add-scc-to-user anyuid -z default
