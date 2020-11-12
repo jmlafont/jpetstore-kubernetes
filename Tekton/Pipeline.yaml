@@ -5,6 +5,8 @@ metadata:
 spec:
   workspaces:
     - name: workspace
+      persistentVolumeClaim: 
+        claimName: workspace   
   params:
   - name: git-url
     type: string
@@ -120,7 +122,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jpet-workspace
+  name: workspace
 spec:
   accessModes:
   - ReadWriteMany

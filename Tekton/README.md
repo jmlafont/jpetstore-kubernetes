@@ -1,23 +1,39 @@
 # Tekton CI/CD pipeline
 
-pre-requisites:
+## Introduction
 
-git CLI:
+In this workshop, you will build an application from its source files and deploy it to an OCP cluster using Openshift Pipeline.
 
-oc CLI:
+- Source files are in the [../jpetstore](../jpetstore) subdirectory of this git repository
+- yaml file to deploy the application are in [../YAML](../YAML) subdirectory
+- pipeline definition is in Tekton/Pipeline.yaml file
 
-tkn CLI:
+## Pre-requisites:
 
-Openshift pipeline (tekton) Operator installed on an openshift cluster 
+- a valid linux session
+- git CLI installed
+- oc CLI installed
+- tkn CLI installed
+- Openshift pipeline (tekton) Operator installed on an openshift cluster 
+- two image repositories:
+  - one to store the application server image  (default :quay.io/jmlafont/jpetstore-web to be replaced by your own repository)
+  - second one to store the db server image  (default :quay.io/jmlafont/jpetstore-db to be replaced by your own repository)
 
-docker images are stored in two repositories:
-
-- quay.io/jmlafont/jpetstore-web : application server
-- quay.io/jmlafont/jpetstore-db : database
-
-yaml file to deploy the application are in [../YAML](../YAML)
 
 
+## Workshop
+
+clone the git repository on your linux session
+
+```
+git clone https://github.com/jmlafont/jpetstore-kubernetes.git
+```
+
+go into Tekton directory
+
+```
+cd jpetstore-kubernetes/Tekton
+```
 
 create a project:
 
@@ -37,5 +53,9 @@ run the pipeline
 tkn pipeline start build-and-deploy-jpet
 ```
 
+add a security context for database
 
+```
+oc adm policy add-scc-to-user anyuid -z default
+```
 
