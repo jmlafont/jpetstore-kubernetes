@@ -71,7 +71,7 @@ spec:
       kind: ClusterTask
     workspaces:
       - name: source
-        workspace: jpet-workspace
+        workspace: workspace
     params:
       - name: DOCKERFILE 
         value: './jpetstore/db/Dockerfile'
