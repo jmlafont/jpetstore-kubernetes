@@ -6,7 +6,7 @@ In this workshop, you will build an application from its source files and deploy
 
 - Source files are in the [../jpetstore](../jpetstore) subdirectory of this git repository
 - yaml file to deploy the application are in [../YAML](../YAML) subdirectory
-- pipeline definition is in Tekton/Pipeline.yaml file
+- pipeline definition is in [Pipeline.yaml](Pipeline.yaml) file
 
 ## Pre-requisites:
 
@@ -38,8 +38,16 @@ cd jpetstore-kubernetes/Tekton
 create a project:
 
 ```
-oc new-project jpetsore-tekton-tuto
+oc new-project jpetstore-tekton-tuto
 ```
+
+add a anyuid security context to teh service account for the db to be able to start
+
+```
+oc adm policy add-scc-to-user anyuid -z default
+```
+
+edit the pipeline definition to change the parameters values
 
 create the pipeline and tasks
 
@@ -53,11 +61,5 @@ run the pipeline
 tkn pipeline start build-and-deploy-jpet \
 --workspace name=workspace,volumeClaimTemplateFile=pvc.yaml
 
-```
-
-add a anyuid security context to teh service account for the db to be able to start
-
-```
-oc adm policy add-scc-to-user anyuid -z default
 ```
 
