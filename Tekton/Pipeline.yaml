@@ -22,11 +22,13 @@ spec:
     type: string
     description: db image repository
     default: "quay.io/jmlafont/jpetstore-db"
-  - name: registry-password
-    description: password to push images 
   - name: registry-username
+    type: string
     description: username to push images 
     default: jmlafont
+  - name: registry-password
+    type: string
+    description: password to push images 
     
   tasks:
   - name: clone-repository
