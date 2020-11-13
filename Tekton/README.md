@@ -15,9 +15,9 @@ In this workshop, you will build an application from its source files and deploy
 - oc CLI installed
 - tkn CLI installed
 - Openshift pipeline (tekton) Operator installed on an openshift cluster 
-- two image repositories:
-  - one to store the application server image  (default :quay.io/jmlafont/jpetstore-web to be replaced by your own repository)
-  - second one to store the db server image  (default :quay.io/jmlafont/jpetstore-db to be replaced by your own repository)
+- two image repositories to store the images:
+  - one to store the application server image 
+  - second one to store the db server image 
 
 
 
@@ -55,6 +55,12 @@ create the pipeline and tasks
 oc apply -f Pipeline.yam
 ```
 
+create  the persistent volume claim to define the persistent volume used to host the workspace
+
+```
+oc apply -f pvc.yaml
+```
+
 run the pipeline
 
 ```
@@ -63,3 +69,4 @@ tkn pipeline start build-and-deploy-jpet \
 
 ```
 
+validate the deployment by finding the route and connect to the application
