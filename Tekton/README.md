@@ -41,13 +41,19 @@ create a project:
 oc new-project jpetstore-tekton-tuto
 ```
 
-add a anyuid security context to teh service account for the db to be able to start
+add a anyuid security context to the service account for the db to be able to start
 
 ```
 oc adm policy add-scc-to-user anyuid -z default
 ```
 
-edit the pipeline definition to change the parameters values
+have a look on the pipeline definition
+
+- This pipeline uses the predefined ClusterTask **git-clone** to clone the source repository and store it in a workspace.
+- Then it uses the ClusterTask **buildah** which build the application and the database images, according to the Dockerfiles found in the repository
+- The last task deploy the application to the OCP cluster using the yaml files found in the repository
+
+[optional] : edit the pipeline definition to change the parameters values
 
 create the pipeline and tasks
 
