@@ -75,4 +75,8 @@ tkn pipeline start build-and-deploy-jpet \
 
 ```
 
+Wait until the end of pipeline execution
+
+![](./images/pipelinerun.jpg)
+
 validate the deployment by finding the route and connect to the application
