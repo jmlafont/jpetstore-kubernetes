@@ -80,3 +80,10 @@ Wait until the end of pipeline execution
 ![](./images/pipelinerun.jpg)
 
 validate the deployment by finding the route and connect to the application
+
+```
+#oc get route
+NAME                      HOST/PORT                       PATH   SERVICES   PORT   TERMINATION   WILDCARD
+jpetstore-ingress-mf6zg   jpet.ocp2.iicparis.fr.ibm.com   /      web        9080                 None
+```
+
