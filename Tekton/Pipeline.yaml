@@ -86,7 +86,7 @@ spec:
       - name: PUSH_EXTRA_ARGS
         value: "--creds $(params.registry-username):$(params.registry-password)"
     runafter:
-      - clone-repository
+      - build-jpet-web
 
   - name: deploy-jpet
     taskRef:
@@ -95,7 +95,7 @@ spec:
       - name: source
         workspace: workspace
     runafter:
-      - build-jpet-web
+      - build-jpet-db
 
 
 

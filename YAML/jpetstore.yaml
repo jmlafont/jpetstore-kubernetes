@@ -1,20 +1,12 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: web
-spec:
-  selector:
-    app: jpetstoreweb
-  ports:
-  - port: 80
-    targetPort: 9080
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: jpetstoreweb
 spec:
   replicas: 1
+  selector:
+      matchLabels:
+        app: jpetstoreweb
   template:
     metadata:
       labels:
@@ -40,13 +32,13 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: db
+  name: web
 spec:
   selector:
-    app: jpetstoredb
+    app: jpetstoreweb
   ports:
-  - port: 3306
-    targetPort: 3306
+  - port: 80
+    targetPort: 9080
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -54,6 +46,9 @@ metadata:
   name: jpetstoredb
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: jpetstoredb
   template:
     metadata:
       labels:
@@ -76,16 +71,14 @@ spec:
           - name: MYSQL_PASSWORD
             value: "foobar"
 ---
-kind: Ingress
-apiVersion: extensions/v1beta1
+kind: Service
+apiVersion: v1
 metadata:
-  name: jpetstore-ingress
+  name: db
 spec:
-  rules:
-  - host: jpet.ocp2.iicparis.fr.ibm.com
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: web
-          servicePort: 80
+  selector:
+    app: jpetstoredb
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
