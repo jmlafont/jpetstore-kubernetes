@@ -58,7 +58,7 @@ have a look on the pipeline definition
 create the pipeline and tasks
 
 ```
-oc apply -f Pipeline.yam
+oc apply -f Pipeline.yaml
 ```
 
 create  the persistent volume claim to define the persistent volume used to host the workspace
