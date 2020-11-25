@@ -116,5 +116,6 @@ spec:
       args:
         - |-
           echo "**** Deploy manifest ****"
-          oc apply -f jpetstore.yaml
-
+          oc new-app --docker-image=quay.io/jmlafont/jpetstore-web --name=jpetstore-web
+          oc new-app --docker-image=quay.io/jmlafont/jpetstore-db -e MYSQL_ROOT_PASSWORD=foobar,MYSQL_DATABASE=jpetstore,MYSQL_USER=jpetstore,MYSQL_PASSWORD=foobar --name=jpetstore-db
+          oc expose svc jpetstore-web
