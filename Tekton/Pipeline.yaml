@@ -117,4 +117,3 @@ spec:
         - |-
           echo "**** Deploy manifest ****"
           oc apply -f jpetstore.yaml
-          oc expose svc jpetstore-web
