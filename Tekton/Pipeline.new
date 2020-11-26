@@ -126,4 +126,4 @@ spec:
       args:
         - |-
           echo "**** Deploy manifest ****"
-          sed 's/WEBIMAGE/$(params.app-image)/' jpetstore.new | sed 's/DBIMAGE/$(params.db-image)/' | oc apply -
+          sed s@WEBIMAGE@$(params.app-image)@ jpetstore.new | sed s@DBIMAGE@$(params.db-image)@ | oc apply -
