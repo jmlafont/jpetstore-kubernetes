@@ -122,8 +122,4 @@ spec:
     - name: deploy
       image: quay.io/openshift/origin-cli:latest
       workingDir: /workspace/source/YAML
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          echo "**** Deploy manifest ****"
-          sed s@WEBIMAGE@$(params.app-image)@ jpetstore.new | sed s@DBIMAGE@$(params.db-image)@ | oc apply -
+      command: ["/bin/bash", "-c", "sed s@WEBIMAGE@$(params.app-image)@ jpetstore.new | sed s@DBIMAGE@$(params.db-image)@ | oc apply -f -"]
