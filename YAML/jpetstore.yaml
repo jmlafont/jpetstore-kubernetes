@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: jpetstoreweb
-        image: quay.io/jmlafont/jpetstore-web
+        image: WEBIMAGE
         env:
           - name: VERSION
             value: "1"
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: jpetstoredb
-        image: quay.io/jmlafont/jpetstore-db
+        image: DBIMAGE
         ports:
         - containerPort: 3306
         env:

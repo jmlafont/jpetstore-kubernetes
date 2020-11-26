@@ -94,6 +94,11 @@ spec:
     workspaces:
       - name: source
         workspace: workspace
+    params:
+      - name: app-image
+        value: $(params.app-image)
+      - name: db-image
+        value: $(params.db-image)
     runafter:
       - build-jpet-db
 
@@ -108,12 +113,13 @@ metadata:
 spec:
   workspaces:
     - name: source  
+  params:
+    - name: app-image
+      type: string
+    - name: db-image
+      type: string
   steps:
     - name: deploy
       image: quay.io/openshift/origin-cli:latest
       workingDir: /workspace/source/YAML
-      command: ["/bin/bash", "-c"]
-      args:
-        - |-
-          echo "**** Deploy manifest ****"
-          oc apply -f jpetstore.yaml
+      command: ["/bin/bash", "-c", "sed s@WEBIMAGE@$(params.app-image)@ jpetstore.new | sed s@DBIMAGE@$(params.db-image)@ | oc apply -f -"]
