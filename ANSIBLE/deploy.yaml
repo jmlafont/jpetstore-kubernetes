@@ -1,0 +1,27 @@
+- name: deploy JPET war
+  hosts: web_servers
+  vars:
+    war_file: jpetstore.war
+  tasks:
+#    - name: create unzip dir
+#      file:
+#        path: /tmp/jpetstore
+#        state: directory
+    - name: unzip WAR
+      copy:
+        src: "/tmp/{{war_file}}"
+        dest: "/usr/share/tomcat/webapps/{{war_file}}"
+#    - name: unzip WAR
+#      unarchive:
+#        src: "/tmp/{{war_file}}"
+#        remote_src: no
+#        dest: "/usr/share/tomcat/webapps/{{war_file}}"
+#    - name: configure DB connexion
+#      debug:
+#        msg: "configure DB connexion" 
+#    - name: zip WAR
+#      archive:
+#       path: /tmp/jpetstore
+#        dest: "/usr/share/tomcat/webapps/{{war_file}}"
+#        format: zip
+#        remove: yes
