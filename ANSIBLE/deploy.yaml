@@ -7,10 +7,30 @@
 #      file:
 #        path: /tmp/jpetstore
 #        state: directory
-    - name: unzip WAR
+
+    - name: copy WAR
       copy:
         src: "/tmp/{{war_file}}"
         dest: "/usr/share/tomcat/webapps/{{war_file}}"
+
+    - name: copy initdb file
+      copy:
+        src: "../jpetstore/db/mysql5/{{item}}"
+        dest: "{{item}}" 
+      loop: 
+        - jpetstore-mysql-1-schema.sql
+        - jpetstore-mysql-2-dataload.sql
+
+    - name: init db
+      shell: mysql -u jpetstore -pjppwd jpetstore <  jpetstore-mysql-1-schema.sql
+
+    - name: init db data
+      shell: mysql -u jpetstore -pjppwd jpetstore <  jpetstore-mysql-2-dataload.sql
+
+    - name: copy jdbc lib
+      copy:
+        src: "../jpetstore/lib/mysql-connector-java-3.0.17-ga-bin.jar"
+        dest: "/usr/share/tomcat/webapps/jpetstore/WEB-INF/lib/"
 #    - name: unzip WAR
 #      unarchive:
 #        src: "/tmp/{{war_file}}"
